@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@googleapis/drive": "^8.11.0",
+    "@solana/web3.js": "^1.95.2",
     "googleapis": "^140.0.1",
     "next": "14.2.5",
     "next-auth": "^4.24.7",

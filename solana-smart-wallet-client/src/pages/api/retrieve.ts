@@ -4,13 +4,11 @@ import { getToken } from "next-auth/jwt"
 import { NextApiRequest, NextApiResponse } from "next"
 import {authOptions} from "./auth/[...nextauth]"
 
-export default async function POST(
+export default async function GET(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
     try {
-      console.log("came here")
-
       //@ts-ignore
       const session = await getServerSession(req, res, authOptions)
       const token = await getToken({ req })
@@ -22,6 +20,7 @@ export default async function POST(
       const accessToken = token?.accessToken as string
       //@ts-ignore
       const refreshToken = token?.refreshToken as string
+
       if (!accessToken) {
         return res.status(401).json({ error: 'No Access Token' })
       }
@@ -36,8 +35,7 @@ export default async function POST(
       // const { credentials } = await oauth2Client.refreshAccessToken()
       // const token1 = { ...credentials, refresh_token: refreshToken }
       // oauth2Client.setCredentials(token1)
-      const {passkey} = req.body as string
-      console.log(passkey)
+      const passkey = "4fefer3r4rf4f4f43fedf" as string
       const drive = google.drive({
         version: 'v3',
         auth:oauth2Client
@@ -46,28 +44,24 @@ export default async function POST(
       const filename = 'passkeyforsmartwallet.txt'
 
       // Step 1: Create a file on Google Drive with the passkey
-      const fileMetadata = {
-        name: filename,
-        mimeType: 'text/plain',
+      const listResponse = await drive.files.list({
+        q: `name='${filename}' and trashed=false`,
+        fields: 'files(id, name)',
+      })
+
+      if (listResponse.data.files?.length === 0) {
+        return res.status(404).json({ error: 'File not found' })
       }
-      const media = {
-        mimeType: 'text/plain',
-        body: passkey,
-      }
-      const fileResponse = await drive.files.create({
-        requestBody: fileMetadata,
-        media: media,
-        fields: 'id',
+      //@ts-ignore
+      const retrievedFileId = listResponse.data.files[0].id
+      const getFileResponse = drive.files.get({
+        fileId: retrievedFileId as string,
+        alt: 'media',
       })
   
-      const fileId = fileResponse.data.id
-      if(fileId){
-        return res.status(200).json({message: "successful"})
-      } else{
-        return res.status(400).json({message:"unsuccessful"})
-      }
-      
-      
+      const retrievedPasskey = (await getFileResponse).data
+  
+      return res.status(200).json({ message: "success", retrievedPasskey })
     } catch (error) {
       console.error('An error occurred: ', error)
       return res.status(500).json({ error: 'Internal Error' })
