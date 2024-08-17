@@ -5,23 +5,18 @@ import { Connection, PublicKey, Keypair, Transaction, SystemProgram,sendAndConfi
 import connectDB from "./utils/connectDB";
 import crypto  from 'crypto'
 import Wallet from './utils/models/wallet.model';
-//@ts-ignore
-import BufferLayout from 'buffer-layout'
 
 
 dotenv.config();
 connectDB();
 
-const programId = new PublicKey(process.env.PROGRAM_ID as string);
+// const programId = new PublicKey(process.env.PROGRAM_ID as string);
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY as string 
-console.log(ENCRYPTION_KEY)
-function splitPrivateKey(privateKey:Uint8Array) {
-    const halfLength = Math.ceil(privateKey.length / 2);
-    const shard1 = privateKey.slice(0, halfLength);
-    const shard2 = privateKey.slice(halfLength);
-    return { shard1, shard2 };
-  }
+
+const feePayerWallet = Keypair.fromSecretKey(Buffer.from([19,58,237,16,78,67,87,131,65,230,225,199,78,240,237,6,172,151,154,137,52,104,77,189,231,189,191,23,84,36,75,5,148,180,248,43,96,140,142,145,42,26,107,210,40,46,109,216,69,206,111,93,49,48,64,149,66,53,113,131,248,11,125,186]))
+
+
   function encrypt(text: Uint8Array): string {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'base64'), iv);
@@ -39,64 +34,7 @@ function decrypt(text: string): Uint8Array {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return new Uint8Array(decrypted); 
 }
-  async function initializePDA(wallet:Keypair) {
-    const payer = Keypair.fromSecretKey(Buffer.from([19,58,237,16,78,67,87,131,65,230,225,199,78,240,237,6,172,151,154,137,52,104,77,189,231,189,191,23,84,36,75,5,148,180,248,43,96,140,142,145,42,26,107,210,40,46,109,216,69,206,111,93,49,48,64,149,66,53,113,131,248,11,125,186]))
-    const [pda, bump] = await PublicKey.findProgramAddress(
-      [wallet.publicKey.toBuffer()], 
-      programId           
-  );
-  const rentExemptAmount1 = await connection.getMinimumBalanceForRentExemption(32) + 1000000000
-  const rentExemptAmount2 = await connection.getMinimumBalanceForRentExemption(0) +500000000
-
-  console.log("1", rentExemptAmount1)
-  console.log("2", rentExemptAmount2)
-
-  const transferSolToNewWalletIx = SystemProgram.transfer({
-    fromPubkey: payer.publicKey,            
-    toPubkey: wallet.publicKey,     
-    lamports: rentExemptAmount1,             
-  });
-
-const transaction1 = new Transaction().add(
-  transferSolToNewWalletIx            
-);
-
-transaction1.feePayer = payer.publicKey;
-
-transaction1.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-
-transaction1.sign(payer);
-
-
-const txid = await sendAndConfirmTransaction(connection, transaction1, [payer]);
-console.log(txid)
-
-const transferSolIx = SystemProgram.transfer({
-  fromPubkey: wallet.publicKey,  
-  toPubkey: pda,                 
-  lamports: rentExemptAmount2,      
-});
-
-const transaction2 = new Transaction().add(
-  transferSolIx    
-);
-
-transaction2.feePayer = wallet.publicKey;
-
-
-transaction2.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-
-transaction2.sign(wallet);
-
-const txid2 = await sendAndConfirmTransaction(connection, transaction2, [wallet]);
-
-return pda.toBase58()
-
-}
-
-
  
-
 const app: Express = express();
 const port = process.env.PORT || 3001 ;
 const corsOptions: cors.CorsOptions = {
@@ -150,6 +88,26 @@ app.get('/shard1/:email', async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
   });
+
+  app.post('/sign-and-send', async (req, res) => {
+    try {
+        const { transaction: transactionBase64 } = req.body;
+
+        const transaction = Transaction.from(Buffer.from(transactionBase64, 'base64'));
+
+        transaction.partialSign(feePayerWallet);
+
+        const txid = await connection.sendRawTransaction(transaction.serialize());
+
+        await connection.confirmTransaction(txid);
+
+        return res.status(200).json({ txid });
+    } catch (error) {
+        console.error('Error signing and sending transaction:', error);
+        return res.status(500).send('Failed to sign and send transaction');
+    }
+});
+  
 
 
   app.listen(port, () => {
