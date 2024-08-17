@@ -26,26 +26,33 @@ const sendTransaction =async (email:string, destWallet1:string, amount:number)=>
       
       const transaction = new Transaction().add({
         keys: [
-          { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
-          { pubkey: pda, isSigner: false, isWritable: true },
-          { pubkey: destWallet, isSigner: false, isWritable: true },
-          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, 
+            { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
+            { pubkey: pda, isSigner: false, isWritable: true },
+            { pubkey: destWallet, isSigner: false, isWritable: true },
+            { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         ],
         programId: programId,
-        data: Buffer.from(new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer)), 
-      });
-      
-      
-    //   transaction.feePayer = wallet.publicKey;
-      console.log(wallet.publicKey.toBase58())
-      transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-      
-      
-      transaction.sign(wallet);
-      
-      const txid = await sendAndConfirmTransaction(connection, transaction, [wallet]);
-      
-          console.log("Transaction ID:", txid);
+        data: Buffer.from(new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer)),
+    });
+    
+    transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
+
+    transaction.feePayer=new PublicKey(process.env.NEXT_PUBLIC_PAYER_WALLET as string)
+
+    transaction.partialSign(wallet);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/sign-and-send`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            transaction: transaction.serialize({requireAllSignatures:false}).toString('base64'),
+        }),
+    });
+
+    const { txid } = await response.json();
+    console.log('Transaction sent and confirmed:', txid);
       return {success:true, txid}
         } else{
             return {success:false}
