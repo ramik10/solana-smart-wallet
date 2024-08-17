@@ -5,11 +5,11 @@ const walletSchema = new mongoose.Schema({
         type: String,
         required:true
     },
-    hashed_shard2:{
+    public_key:{
         type:String,
         required:true
     },
-    public_key:{
+    email:{
         type:String,
         required:true
     }

@@ -11,11 +11,8 @@ import BufferLayout from 'buffer-layout'
 
 dotenv.config();
 connectDB();
-const uint64 = (property = 'uint64') => {
-  return BufferLayout.blob(8, property);
-};
 
-const programId = new PublicKey("CqAC9fW98uhQtt1HPxteRT1DAA7Bum4Z6FjjftxG7oty");
+const programId = new PublicKey(process.env.PROGRAM_ID as string);
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY as string 
 console.log(ENCRYPTION_KEY)
@@ -101,7 +98,7 @@ return pda.toBase58()
  
 
 const app: Express = express();
-const port = process.env.PORT || 3000 ;
+const port = process.env.PORT || 3001 ;
 const corsOptions: cors.CorsOptions = {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -116,73 +113,41 @@ const connection = new Connection('https://api.devnet.solana.com');
 
 app.post(`/create-wallet`, async (req:Request, res:Response) => {
     try {
-        const keyPair = Keypair.generate();
-        const secretKey = keyPair.secretKey
-        const {shard1, shard2} = splitPrivateKey(secretKey)
-        const encrypted_shard1 = encrypt(shard1)
-        const hashed_shard2 = crypto.createHash("sha256").update(Buffer.from(shard2).toString('base64')).digest("hex")
-        const pdaTokenAccount = await initializePDA(keyPair)
-        
-        const createdWallet = await Wallet.create({encrypted_shard1,hashed_shard2,public_key:pdaTokenAccount})
+        const {shard1, pdaTokenAccount, email} = req.body
+        const shard = new Uint8Array(Buffer.from(shard1, 'base64'))
+        const encrypted_shard1 = encrypt(shard)
+        const existingWallet = await Wallet.findOne({email:email})
+        if (existingWallet) return res.status(404).json({message:"user already has a wallet"})
+        const createdWallet = await Wallet.create({encrypted_shard1,public_key:pdaTokenAccount,email})
         if(createdWallet){
             res.status(201).json({
-                passkey:Buffer.from(shard2).toString('base64'),
                 walletAddress: pdaTokenAccount
             })
         } else{
-            res.status(400)
+            res.status(400).json({
+              message:"failed to create wallet"
+            })
         }
-    } catch (error) {
+    } catch (error:any) {
         console.log(error)
-        res.status(500)
+        res.status(500).json({
+          message:`internal server error ${error.message}`
+        })
     }
 })
 
-app.post('/send-transaction', async (req, res) => {
+app.get('/shard1/:email', async (req, res) => {
     try {
-      const {walletAddress, amount, passkey, destWallet1} = req.body;
-      const hashed_shard2 = crypto.createHash("sha256").update(passkey).digest("hex")
-
-     const DBwallet = await Wallet.findOne({hashed_shard2:hashed_shard2})
+      const {email} = req.params;
+     const DBwallet = await Wallet.findOne({email:email})
      const encrypted_shard1 = DBwallet?.encrypted_shard1
-     const public_key = DBwallet?.public_key
-     const shard1 = decrypt(encrypted_shard1 as any)
-     const shard2 = new Uint8Array(Buffer.from(passkey, 'base64'))
-     const privateKey = Buffer.concat([shard1, shard2]);
-
-      const wallet = Keypair.fromSecretKey(new Uint8Array(privateKey));
-
-      const pda = new PublicKey(walletAddress); 
-
-const destWallet = new PublicKey(destWallet1); 
-
-
-const transaction = new Transaction().add({
-  keys: [
-    { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
-    { pubkey: pda, isSigner: false, isWritable: true },
-    { pubkey: destWallet, isSigner: false, isWritable: true },
-    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, 
-  ],
-  programId: programId,
-  data: Buffer.from(new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer)), 
-});
-
-
-transaction.feePayer = wallet.publicKey;
-transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-
-
-transaction.sign(wallet);
-
-const txid = await sendAndConfirmTransaction(connection, transaction, [wallet]);
-
-    console.log("Transaction ID:", txid);
-  
-      res.status(200).send({ txid });
+     const walletAddress = DBwallet?.public_key
+     const decryptedShard = decrypt(encrypted_shard1 as any)
+     const shard1 = Buffer.from(decryptedShard).toString('base64')
+     return res.status(200).json({shard1,walletAddress});
     } catch (error:any) {
       console.error(error);
-      res.status(500).send({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   });
 
