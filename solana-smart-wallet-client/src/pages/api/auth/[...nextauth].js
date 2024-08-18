@@ -3,6 +3,13 @@ import GoogleProvider from "next-auth/providers/google";
 
 
 export const authOptions = {
+    async signIn({ account, profile }) {
+        return true;
+    },
+    async redirect({ url, baseUrl }) {
+        // Redirect back to the transaction signing page after login
+        return url.startsWith(baseUrl) ? url : baseUrl;
+    },
     session: {
       strategy: 'jwt'
     },

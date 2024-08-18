@@ -2,12 +2,41 @@
 import initializePDA from "@/utils/initializePDA"
 import { useSession } from "next-auth/react"
 import sendTransaction from "@/utils/sendTransaction"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClipboard } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
  const [amount, setAmount] = useState(0);
  const [destwallet1, setDestwallet1] = useState("")
  const [tx, setTx] = useState("")
+ const [wallet, setWallet] = useState("")
+
+ const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(wallet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000); // Reset copy status after 2 seconds
+  };
+
+ useEffect(()=>{
+  if(session.status==="authenticated"){
+    try {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.data.user?.email}`).then(
+        async (res)=>{
+          const result = await res.json()
+          if(result.success===true){
+            setWallet(result.wallet)
+          }
+        }
+      )
+    } catch (error) {
+      console.log(error)
+    }
+    
+  }
+ })
 
  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setAmount(Number(e.target.value));
@@ -22,16 +51,31 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   return (
    <>
-   <div>
-    {session.status==="authenticated" &&  <button className="bg-black text-white" onClick={()=>{
+   <div className="flex justify-center">
+    {session.status==="authenticated" && !wallet && <button className="flex items-center bg-purple-700 p-4 rounded-lg w-fit mt-4" onClick={()=>{
       initializePDA(session.data?.user?.email as string).then(async (res)=>{
-        console.log(res)
+        if(res.success===true){
+          setWallet(res.walletAddress as string)
+        }
       })
-    }}>CLick please</button>}
+    }}>Create Wallet</button>}
+    {
+      wallet && <div className="flex items-center bg-purple-700 p-4 rounded-lg w-fit mt-4">
+      <span className="text-white font-mono">{wallet.slice(0, 6)}...${wallet.slice(-4)}</span>
+      <button 
+        onClick={handleCopy} 
+        className="ml-4 p-2 bg-white rounded-lg flex items-center"
+        aria-label="Copy address"
+      >
+        <FontAwesomeIcon icon={faClipboard} className="w-6 h-6 text-purple-500" />
+      </button>
+      {copied && <span className="ml-2 text-white">Copied!</span>}
+    </div>
+    }
    </div>
    <br/>
-   <div>
-    <div className="max-w-sm mx-auto bg-white shadow-lg rounded-lg p-6">
+   { wallet && <div>
+    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Transfer Lamports</h2>
       <div className="mb-4">
         <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount (Lamports)</label>
@@ -55,7 +99,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           type="text"
           name="wallet"
           id="wallet"
-          className="text-black mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          className="text-black mt-2 mb-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
           placeholder="Enter wallet address"
           onChange={handleWalletChange}
         />
@@ -74,7 +118,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       </button>
     </div>
     <div className="text-white text-2xl">Latest Transaction Id : ${tx}</div>
-   </div>
+   </div>}
    </>
   );
 }
