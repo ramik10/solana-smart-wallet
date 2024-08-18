@@ -108,6 +108,19 @@ app.get('/shard1/:email', async (req, res) => {
     }
 });
   
+app.get('/wallet/:email', async (req, res) => {
+  try {
+    const {email} = req.params
+    const user = await Wallet.findOne({email:email})
+    if(user?.email){
+      return res.status(200).json({success:true, wallet:user.public_key})
+    } else{
+      return res.status(404).json({success:false})
+    }
+  } catch (error) {
+    return res.status(500).json(error)
+  }
+})
 
 
   app.listen(port, () => {
