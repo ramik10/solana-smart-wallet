@@ -35,7 +35,7 @@ const sendTransaction =async (email:string, destWallet1:string, amount:number)=>
         data: Buffer.from(new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer)),
     });
     
-    transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     transaction.feePayer=new PublicKey(process.env.NEXT_PUBLIC_PAYER_WALLET as string)
 

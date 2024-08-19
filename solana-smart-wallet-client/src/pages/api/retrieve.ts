@@ -35,7 +35,6 @@ export default async function GET(
       // const { credentials } = await oauth2Client.refreshAccessToken()
       // const token1 = { ...credentials, refresh_token: refreshToken }
       // oauth2Client.setCredentials(token1)
-      const passkey = "4fefer3r4rf4f4f43fedf" as string
       const drive = google.drive({
         version: 'v3',
         auth:oauth2Client

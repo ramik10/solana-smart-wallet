@@ -5,15 +5,16 @@ import sendTransaction from "@/utils/sendTransaction"
 import { useEffect, useState } from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard } from '@fortawesome/free-solid-svg-icons';
+import { Connection, PublicKey } from "@solana/web3.js"
 
 export default function Home() {
  const [amount, setAmount] = useState(0);
  const [destwallet1, setDestwallet1] = useState("")
  const [tx, setTx] = useState("")
  const [wallet, setWallet] = useState("")
-
+ const [balance, setBalance] = useState("")
  const [copied, setCopied] = useState(false);
-
+ const connection = new Connection('https://api.devnet.solana.com');
   const handleCopy = () => {
     navigator.clipboard.writeText(wallet);
     setCopied(true);
@@ -28,6 +29,8 @@ export default function Home() {
           const result = await res.json()
           if(result.success===true){
             setWallet(result.wallet)
+            const balance = await connection.getBalance(new PublicKey(result.wallet))
+            setBalance(parseFloat((balance*0.000000001).toFixed(7)).toString())
           }
         }
       )
@@ -73,6 +76,12 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     </div>
     }
    </div>
+    {wallet && balance ? (<div className="text-white text-2xl flex justify-center mt-2">
+      SOL BALANCE: {balance}
+    </div>):(<div className="text-white text-2xl flex justify-center mt-2">
+      SOL BALANCE: 0
+    </div>)}
+
    <br/>
    { wallet && <div>
     <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">

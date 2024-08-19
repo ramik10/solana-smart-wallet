@@ -49,6 +49,16 @@ export const authOptions = {
         },
       })
     ],
+  //   cookies: {
+  //     sessionToken: {
+  //         name: `__Secure-next-auth.session-token`,
+  //         options: {
+  //             httpOnly: true,
+  //             sameSite: 'None', // Set this to None for cross-site cookies
+  //             secure: true,
+  //         },
+  //     },
+  // },
     theme: {
       colorScheme: 'light'
     },
