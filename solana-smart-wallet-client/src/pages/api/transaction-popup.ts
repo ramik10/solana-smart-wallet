@@ -9,8 +9,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await getServerSession(req, res, authOptions)
 
     if (!session) {
-        // Construct the callback URL to return to this page after login
-        const callbackUrl = `http://${req.headers.host}${req.url}`;
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        console.log(protocol)
+        // Construct the callback URL
+        const callbackUrl = `${protocol}://${req.headers.host}${req.url}`;
         const signInUrl = `/api/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
         // Redirect to the Google login page with the callback URL
@@ -41,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <p>Amount: ${amount} lamports</p>
                 <button id="sign-btn">Sign and Send</button>
     
-                <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.31.0/lib/index.iife.min.js"></script>
+                <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"> </script>
                 <script>
                     const email = "${session.user?.email}";
                     const destWallet = "${destWallet}";
@@ -94,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                 data: new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer),
                             });
     
-                            transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
+                            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
                             transaction.feePayer = new solanaWeb3.PublicKey(payerWallet);
                             transaction.partialSign(wallet);
     
