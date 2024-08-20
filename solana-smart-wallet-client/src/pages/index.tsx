@@ -14,6 +14,8 @@ export default function Home() {
  const [wallet, setWallet] = useState("")
  const [balance, setBalance] = useState("")
  const [copied, setCopied] = useState(false);
+ const [loading, setLoading] = useState<boolean>(false);
+
  const connection = new Connection('https://api.devnet.solana.com');
 
  const session = useSession()
@@ -41,13 +43,21 @@ export default function Home() {
     }
     
   }
- },[session.status])
+ },[session.status,loading])
 
  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setAmount(Number(e.target.value));
+  const value = e.target.value;
+  const numericValue = parseFloat(value);
+
+  if (!isNaN(numericValue)) {
+
+    const formattedValue = numericValue.toFixed(7);
+    setAmount(Number(formattedValue) * 1000000000);
+  } else {
+    setAmount(0);  
+  }
 };
 
-// Handler for wallet input change
 const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setDestwallet1(e.target.value);
 };
@@ -86,9 +96,9 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
    <br/>
    { wallet && <div>
     <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Transfer Lamports</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Transfer SOL</h2>
       <div className="mb-4">
-        <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount (Lamports)</label>
+        <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount (SOL)</label>
         <div className="mt-1 flex rounded-md shadow-sm">
           <input
             type="number"
@@ -97,9 +107,10 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm text-black border-gray-300 p-2"
             placeholder="Enter amount"
             onChange={handleAmountChange}
+            step="0.0000001"
           />
           <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-            Lamports
+            SOL
           </span>
         </div>
       </div>
@@ -114,18 +125,38 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           onChange={handleWalletChange}
         />
       </div>
-      <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700" onClick={()=>{
-      if(amount!==0 && destwallet1!==""){
-        sendTransaction(session.data?.user?.email as string,destwallet1,amount).then(res=>{
-          console.log(res)
-          setTx(res.txid as string)
-        }).catch((e)=>console.log(e))
-      } else{
-        alert("amount or destwallet not properly given")
-      }
-      }}>
-        Send
-      </button>
+      <button
+  className={`w-full py-2 px-4 rounded-md ${
+    loading
+      ? 'bg-gray-400 cursor-not-allowed'  // Disabled button styles
+      : 'bg-indigo-600 hover:bg-indigo-700'
+  } text-white`}
+  onClick={() => {
+    if (amount !== 0 && destwallet1 !== "") {
+      setLoading(true);
+      sendTransaction(session.data?.user?.email as string, destwallet1, amount)
+        .then(res => {
+          console.log(res);
+          setTx(res.txid as string);
+          setLoading(false);
+        })
+        .catch(e => {
+          console.log(e);
+          setLoading(false);
+        });
+    } else {
+      alert("amount or destwallet not properly given");
+    }
+  }}
+  disabled={loading}  // Disable button while loading
+>
+  {loading ? (
+    <span className="loader">Loading...</span>  // Replace with your loader component or styling
+  ) : (
+    "Send"
+  )}
+</button>
+
     </div>
     <div className="text-white text-2xl text-ellipsis overflow-hidden m-2">Latest Transaction Id : {tx}</div>
     <button
