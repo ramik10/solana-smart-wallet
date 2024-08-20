@@ -7,12 +7,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const {destWallet, amount } = req.query;
     //@ts-ignore
     const session = await getServerSession(req, res, authOptions)
-
-    if (!session) {
-        const protocol = req.headers['x-forwarded-proto'] || 'http';
-        console.log(protocol)
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
         // Construct the callback URL
         const callbackUrl = `${protocol}://${req.headers.host}${req.url}`;
+    if (!session) {
+        
         const signInUrl = `/api/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
         // Redirect to the Google login page with the callback URL
@@ -20,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const resp = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.user?.email}`)).json()
-    console.log(resp)
+
     if(resp.success===true){
         const connection = new Connection('https://api.devnet.solana.com');
         const balance = await connection.getBalance(new PublicKey(resp.wallet))
@@ -32,19 +31,90 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Sign Transaction</title>
+                <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #bb86fc;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2, h3 {
+            font-size: 16px;
+            color: #bdbdbd;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin: 8px 0;
+        }
+        button {
+            background-color: #d150eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #3700b3;
+        }
+        #logout-btn {
+            background-color: #cf6679;
+        }
+        #logout-btn:hover {
+            background-color: #b00020;
+        }
+    </style>
             </head>
             <body>
-                <h1>Sign Transaction</h1>
-                <br/>
-                <h2>Wallet Address:${resp.wallet}</h2>
-                <h3>SOL Balance: ${solBalance}</h3>
-                <p>From: ${session.user?.email}</p>
-                <p>To: ${destWallet}</p>
-                <p>Amount: ${amount} lamports</p>
-                <button id="sign-btn">Sign and Send</button>
+                <div class="container">
+                    <h1>Sign Transaction</h1>
+                    <h2 id="wallet-address"></h2>
+                    <h3>SOL Balance: ${solBalance} SOL</h3>
+                    <p><strong>From:</strong> ${session.user?.email}</p>
+                    <p><strong>To:</strong> ${destWallet}</p>
+                    <p><strong>Amount:</strong> ${amount} lamports</p>
+                    <button id="sign-btn">Sign and Send</button>
+                    <button id="logout-btn">Logout</button> <!-- Logout button -->
+                 </div>
     
                 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"> </script>
                 <script>
+
+                     function maskWallet(wallet) {
+                        if (wallet.length <= 12) {
+                            return wallet; // No need to mask if the wallet is too short
+                        }
+                        const start = wallet.slice(0, 5);
+                        const end = wallet.slice(-5);
+                        return start + '****' + end;
+                    }
+                    document.getElementById('wallet-address').innerText = 'Wallet Address: ' + maskWallet("${resp.wallet}");
                     const email = "${session.user?.email}";
                     const destWallet = "${destWallet}";
                     const amount = ${amount};
@@ -124,6 +194,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             window.close();
                         }
                     });
+                    document.getElementById('logout-btn').addEventListener('click', () => {
+        const callbackUrl = window.location.origin; // Redirect after logout
+        const signoutUrl = '/api/auth/signout?callbackUrl=${encodeURIComponent(callbackUrl)}';
+        
+        // Redirect to the signout URL to properly log out
+        window.location.href = signoutUrl;
+    })
                 </script>
             </body>
             </html>
