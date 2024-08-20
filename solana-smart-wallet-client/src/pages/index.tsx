@@ -15,6 +15,8 @@ export default function Home() {
  const [balance, setBalance] = useState("")
  const [copied, setCopied] = useState(false);
  const connection = new Connection('https://api.devnet.solana.com');
+
+ const session = useSession()
   const handleCopy = () => {
     navigator.clipboard.writeText(wallet);
     setCopied(true);
@@ -39,7 +41,7 @@ export default function Home() {
     }
     
   }
- })
+ },[session.status])
 
  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setAmount(Number(e.target.value));
@@ -50,7 +52,6 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setDestwallet1(e.target.value);
 };
 
- const session = useSession()
 
   return (
    <>
@@ -93,7 +94,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             type="number"
             name="amount"
             id="amount"
-            className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm text-black border-gray-300"
+            className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm text-black border-gray-300 p-2"
             placeholder="Enter amount"
             onChange={handleAmountChange}
           />
@@ -108,7 +109,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           type="text"
           name="wallet"
           id="wallet"
-          className="text-black mt-2 mb-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          className="text-black mt-2 mb-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"
           placeholder="Enter wallet address"
           onChange={handleWalletChange}
         />
@@ -126,7 +127,20 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         Send
       </button>
     </div>
-    <div className="text-white text-2xl">Latest Transaction Id : ${tx}</div>
+    <div className="text-white text-2xl text-ellipsis overflow-hidden m-2">Latest Transaction Id : {tx}</div>
+    <button
+      onClick={() => navigator.clipboard.writeText(tx)}
+      className="m-2 px-4 py-2 bg-blue-500 text-white rounded"
+    >
+      Copy
+    </button>
+
+    <button
+  onClick={() => window.open(`https://explorer.solana.com/tx/${tx}?cluster=devnet`, '_blank')}
+  className="m-2 px-4 py-2 bg-green-500 text-white rounded"
+>
+  Check on Solana Explorer
+</button>
    </div>}
    </>
   );
