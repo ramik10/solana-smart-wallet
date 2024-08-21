@@ -22,7 +22,7 @@ const sendTransaction =async (email:string, destWallet1:string, amount:number)=>
 
       
       const destWallet = new PublicKey(destWallet1); 
-      
+      console.log(wallet.publicKey.toBase58())
       
       const transaction = new Transaction().add({
         keys: [

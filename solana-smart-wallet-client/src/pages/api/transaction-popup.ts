@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const {destWallet, amount } = req.query;
+    const {destWallet, amount,serializedTransaction } = req.query;
     //@ts-ignore
     const session = await getServerSession(req, res, authOptions)
     const protocol = req.headers['x-forwarded-proto'] || 'http';
@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const resp = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.user?.email}`)).json()
-
+    
     if(resp.success===true){
         const connection = new Connection('https://api.devnet.solana.com');
         const balance = await connection.getBalance(new PublicKey(resp.wallet))
@@ -97,12 +97,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     <h2 id="wallet-address"></h2>
                     <h3>SOL Balance: ${solBalance} SOL</h3>
                     <p><strong>From:</strong> ${session.user?.email}</p>
-                    <p><strong>To:</strong> ${destWallet}</p>
-                    <p><strong>Amount:</strong> ${amount} lamports</p>
+                     <p><strong>To:</strong> <span id="dest-wallet"></span></p>
+                     <p><strong>Amount:</strong> <span id="amount"></span> SOL</p>
                     <button id="sign-btn">Sign and Send</button>
                     <button id="logout-btn">Logout</button> <!-- Logout button -->
                  </div>
-    
+                 <script src="https://bundle.run/buffer@6.0.3"></script>
+                 <script type="text/javascript">
+                        window.Buffer = window.Buffer ?? buffer.Buffer;
+                    </script>
                 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"> </script>
                 <script>
 
@@ -116,8 +119,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                     document.getElementById('wallet-address').innerText = 'Wallet Address: ' + maskWallet("${resp.wallet}");
                     const email = "${session.user?.email}";
-                    const destWallet = "${destWallet}";
-                    const amount = ${amount};
                     const backendUrl = "${process.env.NEXT_PUBLIC_BACKEND_URI}";
                     const programId = "${process.env.NEXT_PUBLIC_PROGRAM_ID}";
                     const payerWallet = "${process.env.NEXT_PUBLIC_PAYER_WALLET}";
@@ -132,6 +133,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     return bytes;
                 }
                     const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+
+                    const array = base64ToUint8Array("${serializedTransaction}")
+                    const transaction = solanaWeb3.Transaction.from(array)
+
+                    const amount = Number(solanaWeb3.SystemInstruction.decodeTransfer(transaction.instructions[0]).lamports)
+                    const destWallet = solanaWeb3.SystemInstruction.decodeTransfer(transaction.instructions[0]).toPubkey.toBase58()
+                    document.getElementById('dest-wallet').innerText = destWallet;
+                    document.getElementById('amount').innerText = Number(amount*0.000000001);        
     
                     document.getElementById('sign-btn').addEventListener('click', async () => {
                         try {
@@ -140,7 +149,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
                             if (shard2Response.status !== 200) throw new Error('Failed to retrieve shard2');
                             const { retrievedPasskey } = await shard2Response.json();
-                            console.log(retrievedPasskey)
+
                             const shard2 = base64ToUint8Array(retrievedPasskey);
     
                             // Fetch shard1 from your backend
@@ -152,26 +161,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             const privateKey = new Uint8Array([...shard1Array, ...shard2]);
                             const wallet = solanaWeb3.Keypair.fromSecretKey(new Uint8Array(privateKey));
                             const pda = new solanaWeb3.PublicKey(walletAddress);
-                            const destWalletPubKey = new solanaWeb3.PublicKey(destWallet);
-    
+
                             // Create the transaction
-                            const transaction = new solanaWeb3.Transaction().add({
-                                keys: [
-                                    { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
-                                    { pubkey: pda, isSigner: false, isWritable: true },
-                                    { pubkey: destWalletPubKey, isSigner: false, isWritable: true },
-                                    { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
-                                ],
-                                programId: new solanaWeb3.PublicKey(programId),
-                                data: new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer),
+                            
+                            const tra =  new solanaWeb3.Transaction().add({
+                            keys: [
+                                { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
+                                { pubkey: pda, isSigner: false, isWritable: true },
+                                { pubkey: transaction.instructions[0].keys[1].pubkey, isSigner: false, isWritable: true },
+                                { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                            ],
+                            programId: programId,
+                            data: Buffer.from(new Uint8Array(new BigUint64Array([BigInt(amount)]).buffer)),
                             });
-    
-                            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-                            transaction.feePayer = new solanaWeb3.PublicKey(payerWallet);
-                            transaction.partialSign(wallet);
+                            tra.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+                            tra.feePayer=transaction.feePayer
+
+                            tra.partialSign(wallet);
+
     
                             // Send the transaction to the backend for final signing
-                            const transactionBase64 = transaction.serialize({ requireAllSignatures: false }).toString('base64');
+                            const transactionBase64 = tra.serialize({ requireAllSignatures: false }).toString('base64');
                             const response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/sign-and-send", {
                                 method: 'POST',
                                 headers: {
