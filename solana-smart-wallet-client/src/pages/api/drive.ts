@@ -9,8 +9,6 @@ export default async function POST(
   res: NextApiResponse
 ) {
     try {
-      console.log("came here")
-
       //@ts-ignore
       const session = await getServerSession(req, res, authOptions)
       const token = await getToken({ req })
@@ -26,18 +24,17 @@ export default async function POST(
         return res.status(401).json({ error: 'No Access Token' })
       }
   
-      const oauth2Client = new google.auth.OAuth2({})
+      const oauth2Client = new google.auth.OAuth2({
+        clientId: process.env.GOOGLE_OAUTH_ID,
+        clientSecret:process.env.GOOGLE_OAUTH_SECRET
+      })
   
       oauth2Client.setCredentials({
         access_token: accessToken,
         refresh_token: refreshToken
       })
       //@ts-ignore
-      // const { credentials } = await oauth2Client.refreshAccessToken()
-      // const token1 = { ...credentials, refresh_token: refreshToken }
-      // oauth2Client.setCredentials(token1)
       const {passkey} = req.body as string
-      console.log(passkey)
       const drive = google.drive({
         version: 'v3',
         auth:oauth2Client

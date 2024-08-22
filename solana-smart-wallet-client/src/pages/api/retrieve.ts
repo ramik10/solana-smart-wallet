@@ -25,16 +25,16 @@ export default async function GET(
         return res.status(401).json({ error: 'No Access Token' })
       }
   
-      const oauth2Client = new google.auth.OAuth2({})
-  
+      const oauth2Client = new google.auth.OAuth2({
+        clientId: process.env.GOOGLE_OAUTH_ID,
+        clientSecret:process.env.GOOGLE_OAUTH_SECRET
+      })
+
       oauth2Client.setCredentials({
-        access_token: accessToken,
+        access_token:accessToken,
         refresh_token: refreshToken
       })
-      //@ts-ignore
-      // const { credentials } = await oauth2Client.refreshAccessToken()
-      // const token1 = { ...credentials, refresh_token: refreshToken }
-      // oauth2Client.setCredentials(token1)
+
       const drive = google.drive({
         version: 'v3',
         auth:oauth2Client
@@ -61,8 +61,9 @@ export default async function GET(
       const retrievedPasskey = (await getFileResponse).data
   
       return res.status(200).json({ message: "success", retrievedPasskey })
-    } catch (error) {
+    } catch (error:any) {
       console.error('An error occurred: ', error)
+      console.log(error.status)
       return res.status(500).json({ error: 'Internal Error' })
     }
   }
