@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard } from '@fortawesome/free-solid-svg-icons';
 import { Connection, PublicKey } from "@solana/web3.js"
+import { toast } from "react-toastify"
 
 export default function Home() {
  const [amount, setAmount] = useState(0);
@@ -43,7 +44,19 @@ export default function Home() {
     }
     
   }
- },[session.status,loading])
+ },[session.status,loading,tx])
+
+ const requestAirdrop = async()=>{
+  try {
+    const txhash = await connection.requestAirdrop(new PublicKey(wallet), 1e9);
+    setTx(txhash)
+    toast.success("Got 1 Sol in devnet")
+  } catch (error:any) {
+    console.log(wallet)
+    console.log(error)
+    toast.error(error.message)
+  }
+ }
 
  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value;
@@ -172,6 +185,12 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 >
   Check on Solana Explorer
 </button>
+{wallet && <button
+  onClick={requestAirdrop}
+  className="m-2 px-4 py-2 bg-yellow-600 text-white rounded"
+>
+  Request 1 SOL airdrop(devnet) 
+</button>}
    </div>}
    </>
   );

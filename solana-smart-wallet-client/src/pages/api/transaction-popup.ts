@@ -51,6 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             max-width: 350px;
             width: 100%;
             text-align: center;
+            position: relative;
         }
         h1 {
             color: #bb86fc;
@@ -79,8 +80,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             margin-bottom: 8px;
             width: 100%;
             transition: background-color 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        button:hover {
+        button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
             background-color: #3700b3;
         }
         #logout-btn {
@@ -88,6 +97,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         #logout-btn:hover {
             background-color: #b00020;
+        }
+        /* Loader styles within the button */
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            left: 10px;
+            display: none; /* Hidden by default */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
             </head>
@@ -99,7 +124,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     <p><strong>From:</strong> ${session.user?.email}</p>
                      <p><strong>To:</strong> <span id="dest-wallet"></span></p>
                      <p><strong>Amount:</strong> <span id="amount"></span> SOL</p>
-                    <button id="sign-btn">Sign and Send</button>
+                    <button id="sign-btn">
+                        <div class="loader" id="sign-btn-loader"></div>
+                        <span>Sign and Send</span>
+                    </button>
                     <button id="logout-btn">Logout</button> <!-- Logout button -->
                  </div>
                  <script src="https://bundle.run/buffer@6.0.3"></script>
@@ -143,6 +171,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     document.getElementById('amount').innerText = Number(amount*0.000000001);        
     
                     document.getElementById('sign-btn').addEventListener('click', async () => {
+                             const signBtn = document.getElementById('sign-btn');
+                            const loader = document.getElementById('sign-btn-loader');
+
+                            // Disable the button and show the loader
+                            signBtn.disabled = true;
+                            loader.style.display = 'inline-block';
                         try {
                             // Fetch shard2 in the client-side pop-up, where the session is available
                             const shard2Response = await fetch('/api/retrieve');
