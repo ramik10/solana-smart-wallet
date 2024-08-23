@@ -5,7 +5,7 @@ function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="bg-white shadow">
+    <nav className="bg-white backdrop-blur-md backdrop-brightness-150 bg-opacity-20 shadow rounded-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="flex items-center">
           <Link className="text-blue-500 font-bold text-xl" href="/">
@@ -23,7 +23,7 @@ function Navbar() {
         <div className="flex items-center">
           {session ? (
             <>
-              <span className="mr-4 text-black">Welcome, {session.user?.name}</span>
+              <span className="mr-4 text-white">Welcome, {session.user?.name}</span>
               <button onClick={() => signOut()} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                 Sign Out
               </button>
