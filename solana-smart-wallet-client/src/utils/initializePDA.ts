@@ -12,6 +12,7 @@ function splitPrivateKey(privateKey:Uint8Array) {
 
 
 const initializePDA = async (email:string)=>{
+    try {
     const keyPair = Keypair.generate();
     const secretKey = keyPair.secretKey
     const {shard1, shard2} = splitPrivateKey(secretKey)
@@ -19,9 +20,17 @@ const initializePDA = async (email:string)=>{
         [keyPair.publicKey.toBuffer()], 
         programId           
     );
-    
-    const responses = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/create-wallet`,{
+    const response = await fetch("/api/drive",{
+        method:"POST",
+        body: JSON.stringify({
+            passkey:Buffer.from(shard2).toString('base64')
+        }),
+        headers: {
+            "Content-Type": "application/json",
+          },
+    })
+    if(response.status===200){
+        const response1 = await  fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/create-wallet`,{
             method:"POST",
             body: JSON.stringify({
                 shard1:Buffer.from(shard1).toString('base64'),
@@ -31,23 +40,21 @@ const initializePDA = async (email:string)=>{
             headers: {
                 "Content-Type": "application/json",
               },
-        }),
-        fetch("/api/drive",{
-            method:"POST",
-            body: JSON.stringify({
-                passkey:Buffer.from(shard2).toString('base64')
-            }),
-            headers: {
-                "Content-Type": "application/json",
-              },
         })
-    ])
-
-    if(responses[0].status===201 && responses[1].status===200){
-        return {success:true, walletAddress:pda.toBase58()}
+        if(response1.status===201){
+            return {success:true, walletAddress:pda.toBase58()}
+        } else if (response1.status===500){
+            return {success:false, message:"please relogin and try"}
+        } else{
+            return {success:false, message:"some error occured try again"}
+        }
     } else{
         return {success:false, message:"some error occured try again"}
     }
+    } catch (error:any) {
+        return {success:false, message:error.message}
+    }
+    
 
 }
 

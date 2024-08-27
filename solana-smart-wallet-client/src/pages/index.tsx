@@ -1,15 +1,15 @@
 import Head from 'next/head'
 import Header from '../components/Header'
 import MainSection from '../components/MainSection'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 
 const Home = () => {
   const router = useRouter()
   const session = useSession()
   if(session.status==="authenticated" && router.isReady){
-    router.push("/mainpage")
+    router.push("/wallet")
   }
   return (
     <div>
@@ -20,7 +20,6 @@ const Home = () => {
       </Head>
 
       <div className="relative h-screen overflow-hidden">
-        {/* Full-page background image */}
         <div className="absolute inset-0 z-0">
           <Image 
             src="/Rectangle 7.png" 
@@ -43,7 +42,7 @@ const Home = () => {
       </div>
     </div>
   )
-}
+} 
 
 export default Home
 
