@@ -13,7 +13,7 @@ const MainSection = () => {
           <p className="text-base sm:text-lg mb-4 sm:mb-6">
             SolBoard is an interoperable Solana smart wallet that lets you interact with dapps in the Solana ecosystem using a simple Google login, removing the hassle of remembering or protecting your recovery phrase.
           </p>
-          <button onClick={()=>router.push("/mainpage")} className="bg-green-600 text-white py-2 sm:py-3 px-6 sm:px-8 rounded">
+          <button onClick={()=>router.push("/wallet")} className="bg-green-600 text-white py-2 sm:py-3 px-6 sm:px-8 rounded">
             Get Started
           </button>
         </div>

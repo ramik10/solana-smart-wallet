@@ -41,7 +41,7 @@ const router = useRouter()
           <a href="#" className="hover:underline">Dev Support</a>
           <a href="#" className="hover:underline">Community</a>
           <a href="#" className="hover:underline">Telegram</a>
-          <button onClick={()=>router.push("/mainpage")} className="border border-white text-white py-2 px-4 rounded">
+          <button onClick={()=>router.push("/wallet")} className="border border-white text-white py-2 px-4 rounded">
             Get Started
           </button>
         </nav>
