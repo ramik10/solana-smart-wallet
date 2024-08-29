@@ -42,7 +42,6 @@ export default async function POST(
 
       const filename = 'passkeyforsmartwallet.txt'
 
-      // Step 1: Create a file on Google Drive with the passkey
       const fileMetadata = {
         name: filename,
         mimeType: 'text/plain',

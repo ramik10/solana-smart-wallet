@@ -18,9 +18,9 @@ const router = useRouter()
       
       {/* Navigation Links - visible on larger screens */}
       <nav className="hidden sm:flex space-x-4 sm:space-x-6 md:space-x-8 text-white">
-        <a href="#" className="hover:underline">Dev Support</a>
-        <a href="#" className="hover:underline">Community</a>
-        <a href="#" className="hover:underline">Telegram</a>
+        <a href="https://ramiks-organization.gitbook.io/solboard" className="hover:underline">Dev Support</a>
+        <a href="https://discord.gg/DrZqJvFzHS" className="hover:underline">Community</a>
+        <a href="https://t.me/+2tYZ8Tb1fKA4Nzdl" className="hover:underline">Telegram</a>
       </nav>
       
       {/* Get Started Button - visible on larger screens */}
@@ -38,9 +38,9 @@ const router = useRouter()
       {/* Mobile Navigation Menu - shown when menu is open */}
       {isMenuOpen && (
         <nav className="absolute top-full left-0 right-0 bg-green-950 bg-opacity-95 text-white flex flex-col space-y-4 p-4 sm:hidden">
-          <a href="#" className="hover:underline">Dev Support</a>
-          <a href="#" className="hover:underline">Community</a>
-          <a href="#" className="hover:underline">Telegram</a>
+          <a href="https://ramiks-organization.gitbook.io/solboard" className="hover:underline">Dev Support</a>
+          <a href="https://discord.gg/DrZqJvFzHS" className="hover:underline">Community</a>
+          <a href="https://t.me/+2tYZ8Tb1fKA4Nzdl" className="hover:underline">Telegram</a>
           <button onClick={()=>router.push("/wallet")} className="border border-white text-white py-2 px-4 rounded">
             Get Started
           </button>

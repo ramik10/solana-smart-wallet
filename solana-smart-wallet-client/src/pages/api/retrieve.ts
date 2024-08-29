@@ -42,7 +42,6 @@ export default async function GET(
 
       const filename = 'passkeyforsmartwallet.txt'
 
-      // Step 1: Create a file on Google Drive with the passkey
       const listResponse = await drive.files.list({
         q: `name='${filename}' and trashed=false`,
         fields: 'files(id, name)',

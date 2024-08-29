@@ -15,9 +15,9 @@ const Header = () => {
         SolBoard
       </div>
       <nav className=" space-x-4 md:space-x-8 text-white justify-end hidden lg:block text-2xl">
-        <a href="#" className="hover:underline">Docs</a>
-        <a href="#" className="hover:underline">Discord</a>
-        <a href="#" className="hover:underline">Twitter</a>
+        <a href="https://ramiks-organization.gitbook.io/solboard" className="hover:underline">Docs</a>
+        <a href="https://discord.gg/DrZqJvFzHS" className="hover:underline">Discord</a>
+        <a href="https://x.com/SolBoardWallet" className="hover:underline">Twitter</a>
       </nav>
     { session.status==="authenticated" ? <button onClick={()=>signOut()} className="border border-purple-500 text-white py-2 px-4 md:px-6  rounded hover:bg-purple-500 hover:text-white transition">Sign Out</button>
       : <button onClick={() => signIn('google')} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Sign In</button>}
@@ -40,10 +40,6 @@ const MainSection = () => {
         <Formsection/>
       </div>
 
-      {/* Form Section */}
-      
-
-      {/* Greek God Statue */}
       
     </section>
     <div className="absolute hidden xl:block 2xl:bottom-20 lg:bottom-10 2xl:right-60 xl:right-14 z-20 max-h-[715px] h-[60%] w-[40%] max-w-[742px]">
@@ -293,7 +289,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   className="absolute inset-0 z-50 text-white flex items-center justify-center "
 >
 {loading ? (
-    <span className="loader">Loading...</span>  // Replace with your loader component or styling
+    <span className="loader">Loading...</span>  
   ) : (
     "Send Now"
   )}
@@ -330,11 +326,8 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 </div>
 
 
-{/* Middle Section with Rectangle */}
-
   </div>
 
-  {/* Form Content */}
   
 
 </div> : 
