@@ -24,7 +24,7 @@ const router = useRouter()
       </nav>
       
       {/* Get Started Button - visible on larger screens */}
-      <button onClick={()=>router.push("/mainpage")} className=" bg-green-950 bg-opacity-90 border border-green-700 text-white py-2 px-4 sm:px-6 rounded hidden md:block">
+      <button onClick={()=>router.push("/wallet")} className=" bg-green-950 bg-opacity-90 border border-green-700 text-white py-2 px-4 sm:px-6 rounded hidden md:block">
         Get Started
       </button>
 
