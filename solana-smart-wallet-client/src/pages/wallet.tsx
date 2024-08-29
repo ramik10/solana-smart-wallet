@@ -338,7 +338,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   
 
 </div> : 
-<div className="relative z-20 h-2/3 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl p-4 md:p-6 rounded-lg shadow-lg mt-20 md:mt-1">
+<div className="relative z-40 top-[20%]">
 <button onClick={()=>{
       initializePDA(session.data?.user?.email as string).then(async (res)=>{
         if(res.success===true){
