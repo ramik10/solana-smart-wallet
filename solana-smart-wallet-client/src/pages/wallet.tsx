@@ -10,16 +10,16 @@ import Image from 'next/image'
 const Header = () => {
   const session = useSession()
   return (
-    <header className="absolute top-0 w-full flex justify-between items-center p-6  md:mt-40 z-30">
-      <div className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center md:text-right">
+    <header className="absolute flex justify-between items-center w-[90%] z-40  ml-[1%]">
+      <div className="text-white text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold text-center md:text-right xl:ml-[4%] xl:mt-10">
         SolBoard
       </div>
-      <nav className="flex space-x-4 md:space-x-8 text-white justify-end hidden lg:block text-2xl">
+      <nav className=" space-x-4 md:space-x-8 text-white justify-end hidden lg:block text-2xl">
         <a href="#" className="hover:underline">Docs</a>
         <a href="#" className="hover:underline">Discord</a>
         <a href="#" className="hover:underline">Twitter</a>
       </nav>
-    { session.status==="authenticated" ? <button onClick={()=>signOut()} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Sign Out</button>
+    { session.status==="authenticated" ? <button onClick={()=>signOut()} className="border border-purple-500 text-white py-2 px-4 md:px-6  rounded hover:bg-purple-500 hover:text-white transition">Sign Out</button>
       : <button onClick={() => signIn('google')} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Sign In</button>}
     </header>
   )
@@ -27,35 +27,34 @@ const Header = () => {
 
 const MainSection = () => {
   return (
-    <section className="relative flex flex-col md:flex-row justify-between items-center p-6 md:p-10 h-screen overflow-hidden md:mt-100 z-20">
+    <div className="flex flex-col z-20 justify-between">
+    <section className="relative w-full h-screen overflow-hidden">
       {/* Background Vector */}
-      <div className="absolute inset-0 flex justify-center items-center z-10 hidden lg:block">
-        <Image
-          src="/Vector.png"
-          alt="Background Vector"
-          width={1920}
-          height={1080}
-          layout="intrinsic"
-          objectFit="contain"
-          className="max-w-full max-h-full md:max-w-4xl"
-          priority
+      <div className="absolute  h-[803px] w-[95%] bg-inherit">
+      <Image
+          src={"/Vector.png"}
+          alt="vector"
+          fill
+          className="object-fill h-fit z-10 hidden lg:block"
         />
+        <Formsection/>
       </div>
 
       {/* Form Section */}
-      <Formsection/>
+      
 
       {/* Greek God Statue */}
-      <div className="relative z-20 w-full h-1/3 md:w-1/2 md:h-2/3 mt-6 md:mt-0">
+      
+    </section>
+    <div className="absolute hidden xl:block 2xl:bottom-20 lg:bottom-10 2xl:right-60 xl:right-14 z-20 max-h-[715px] h-[60%] w-[40%] max-w-[742px]">
         <Image
           src="/god with sol eyes.png"
           alt="Greek God Statue"
-          layout="fill"
-          objectFit="contain"
-          priority
+          fill
+          className="object-fill h-fit z-10"
         />
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -124,26 +123,20 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 };
 
   return(
-  wallet ? <div className="relative z-20 h-2/3 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl p-4 md:p-6 rounded-lg shadow-lg mt-20 md:mt-1">
+  wallet ? <div className="relative z-20 w-full max-h-[628px] max-w-[625px] h-[80%] lg:top-[16%]">
   {/* Background Image */}
   
-  <div className="absolute inset-0 z-10 max-w-2xl">
+  <div className="absolute inset-0 z-10 max-w-[625px] max-h-[526px] w-full rounded-lg shadow-lg top-[12%] lg:left-[15%]">
     
     <Image
       src="/Rectangle.png"
       alt="rectangle"
-      height={1920}
-      width={1080}
-      objectFit="contain"
-      className="min-w-full"
+      fill
+      className="object-fill h-fit z-10"
     />
-  </div>
-
-  {/* Form Content */}
-  <div className="relative z-20 items-center space-y-4 p-4 h-full">
-{/* Solana Devnet Select and Amount Input */}
-<div className="absolute inset-0 z-20 max-w-full ml-1">
-  <div className="relative flex items-center z-20 justify-between">
+    <div className="relative z-20 w-[90%] max-h-[357px] max-w-[553px] h-[80%] lg:top-[2%] mx-auto my-[5%]">
+    <div className="relative z-20 w-full max-h-[150px] max-w-[553px] h-[40%]">
+    <div className="relative flex items-center z-20 justify-between">
     <div className="text-white z-30">via</div>
     
     <div className="relative flex items-center ml-8 z-40">
@@ -181,26 +174,17 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       </button>
     </div>
   </div>
-</div>
-
-
-
-
-
-{/* Middle Section with Rectangle */}
-<div className="absolute inset-0 z-20 max-w-full ml-1 mt-10">
-<div className="absolute inset-0 mt-2">
+  <div className="relative inset-0 z-20 max-w-full max-h-[102px] h-[80%]">
+<div className="absolute inset-0 mt-[1%] h-full w-full">
 <Image
   src="/Rectangle (1).png"
   alt="rectangle"
-  height={1920}
-  width={1080}
-  objectFit="contain"
-  className="absolute max-w-full z-10 mt-10"
+  fill
+  className="object-fill h-fit z-10"
 />
-<div className='z-20 max-w-full mt-12'>
+<div className='z-20 max-w-full'>
   <div className="flex max-w-full justify-between mx-5">
-    <div className='text-white text-xs lg:text-lg'>
+    <div className='text-white text-lg hidden sm:block'>
       Send:
     </div>
     <div className='text-white'> 
@@ -208,7 +192,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     </div>
 
   </div>
-  <div className="flex max-w-full justify-between mx-5 lg:mt-8 xl:mt-10 md:mt-5">
+  <div className="relative flex max-w-full justify-between mx-5 mt-[6%]">
     <div className='text-white z-40'>
     <input
       type="number"
@@ -221,7 +205,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     />
     </div>
     <div className='text-white'> 
-    <select className="bg-transparent text-white py-2 px-4 rounded-md w-full z-40 relative ml-1">
+    <select className="bg-transparent text-white rounded-md w-full z-40 relative">
   <option className='flex'>SOL</option>
 </select>
     </div>
@@ -230,9 +214,11 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 </div>
 </div>
 </div>
+    </div>
+    
 
 {/* Arrow Section */}
-<div className="absolute inset-0 z-10 max-w-full ml-1 top-1/4 lg:top-1/3 xl:top-1/4" >
+<div className="relative inset-0 z-10 max-w-full" >
 <div className="flex justify-center">
 <Image
   src="/mdi_arrow-down-thin.png"
@@ -240,26 +226,23 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   height={1920}
   width={1080}
   objectFit="contain"
-  className="absolute max-w-9 z-10 mt-5 lg:mt-10 xl:mt-5"
+  className="absolute max-w-9 z-10 mt-5 lg:mt-10 xl:mt-10"
 />
 </div>
 </div>
-<div className="absolute inset-0 z-20 max-w-full ml-1 top-1/3 lg:top-2/4 2xl:top-1/3">
-<div className="flex justify-center">
+<div className="relative z-20 w-full max-h-[150px] max-w-[553px] h-[40%] top-[20%] flex flex-col justify-end">
+<div className="relative flex justify-start max-h-[101px] w-full h-[80%]">
 <Image
   src="/Rectangle (1).png"
   alt="rectangle"
-  height={1920}
-  width={1080}
-  objectFit="contain"
-  className="absolute max-w-full z-10 mt-5"
+  fill
+  className="object-fill h-fit z-10"
 />
-</div>
-<div className='relative z-30 max-w-full mt-6 lg:mt-12 mx-5'>
+<div className='relative z-30 max-w-full  mx-[5%]'>
     <div className='text-white text-xs lg:text-lg'>
       To destination address:
     </div>
-    <div className='z-40 p-1 mt-1 md:mt-2 lg:mt-4 xl:mt-5'>
+    <div className='z-40 mt-[10%]'>
     <input
     type="text"
     name="wallet"
@@ -272,16 +255,20 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   </div>
 </div>
 
-<div className="relative z-40 max-w-1 -ml-5 md:ml-1 top-1/2  xl:top-1/2">
-<div className="max-w-full flex justify-start xl:justify-between mx-4 xl:mx-20 mt-10 space-x-4">
-<div className="relative max-w-full mt-5 lg:mt-28 2xl:mt-5">
+    </div>
+    
+
+</div>
+
+
+<div className="relative z-20 w-[60%] max-h-[46px] max-w-[398px] h-[15%] top-[5%] left-[7%]">
+<div className="relative max-w-full h-full flex justify-between">
+<div className="relative max-w-[187px] h-full w-[50%]">
 <Image
   src="/Vector (3).png"
   alt="vector"
-  height={1920}
-  width={1080}
-  objectFit="contain"
-  className="z-20 lg:max-w-36 max-w-28"
+  fill
+  className="object-fill h-fit z-20"
 />
 <button
   disabled={loading}
@@ -303,7 +290,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       alert("Amount or destination wallet not properly given");
     }
   }}
-  className="absolute inset-0 z-50 text-white text-lg md:text-xl flex items-center justify-center ml-16 whitespace-nowrap"
+  className="absolute inset-0 z-50 text-white flex items-center justify-center "
 >
 {loading ? (
     <span className="loader">Loading...</span>  // Replace with your loader component or styling
@@ -312,24 +299,21 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   )}
 </button>
 </div>
-<div className="relative max-w-xl mt-5 lg:mt-28 2xl:mt-5">
+<div className="relative max-w-[187px] h-full w-[45%]">
 <Image
   src="/Vector (4).png"
   alt="vector"
-  height={1920}
-  width={1080}
-  objectFit="contain"
-  className="z-20 lg:max-w-36 max-w-28 md:ml-64 ml-48"
+  fill
+  className="object-fill h-fit z-20"
 />
 <button
   onClick={requestAirdrop}
-  className="absolute inset-0 z-50 text-white text-lg md:text-xl flex items-center justify-center md:ml-64 ml-48"
+  className="absolute inset-0 z-50 text-white flex items-center justify-center"
 >
   Airdrop
 </button>
 </div>
-</div>
-{tx && <div className="flex justify-start ml-28 md:ml-44 lg:ml-56">
+{tx && <div className="relative hidden md:block">
 <button
       onClick={() => {navigator.clipboard.writeText(tx)
         toast.success("Tx id copied")
@@ -340,10 +324,18 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       Copy Tx id
     </button>
 </div>}
+</div>
+
 
 </div>
 
-</div>
+
+{/* Middle Section with Rectangle */}
+
+  </div>
+
+  {/* Form Content */}
+  
 
 </div> : 
 <div className="relative z-20 h-2/3 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl p-4 md:p-6 rounded-lg shadow-lg mt-20 md:mt-1">
@@ -352,7 +344,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if(res.success===true){
           setWallet(res.walletAddress as string)
         } else{
-          alert(res.message)
+          toast.error(res.message)
         }
       })
     }} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Create Wallet</button>
@@ -363,11 +355,13 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 const HomePage = () => {
   const session = useSession()
   return (
-    <div className="pt-1 lg:pt-32 xl:pt-40 overflow-hidden relative h-screen mx-1 md:mx-20">
+    <div className="absolute h-screen w-screen py-[5%] overflow-x-hidden">
+      <div className=" lg:ml-28 ml-[5%] w-[95%]">
       <Header />
-     {session.status==="authenticated" ? <MainSection /> : <div className="text-white text-6xl mt-96">
+     {session.status==="authenticated" ? <MainSection /> : <div className="text-white text-6xl pt-64">
       Please login to see your wallet
       </div>}
+      </div> 
     </div>
   )
 }

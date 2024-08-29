@@ -14,8 +14,7 @@ connectDB();
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY as string 
 
-const feePayerWallet = Keypair.fromSecretKey(Buffer.from([19,58,237,16,78,67,87,131,65,230,225,199,78,240,237,6,172,151,154,137,52,104,77,189,231,189,191,23,84,36,75,5,148,180,248,43,96,140,142,145,42,26,107,210,40,46,109,216,69,206,111,93,49,48,64,149,66,53,113,131,248,11,125,186]))
-
+const feePayerWallet = Keypair.fromSecretKey(Buffer.from(`${process.env.FEE_PAYER_SECRET}`, 'base64'))
 
   function encrypt(text: Uint8Array): string {
     const iv = crypto.randomBytes(16);
