@@ -92,6 +92,7 @@ const Formsection = ()=>{
  const requestAirdrop = async()=>{
   try {
     const txhash = await connection.requestAirdrop(new PublicKey(wallet), 1e9);
+    const confirmed = await connection.confirmTransaction(txhash)
     setTx(txhash)
     toast.success("Got 1 Sol in devnet")
   } catch (error:any) {
