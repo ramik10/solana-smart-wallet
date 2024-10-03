@@ -182,7 +182,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                             const shard2 = base64ToUint8Array(retrievedPasskey);
 
-                            const shard1Response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${session.googleId}"); 
+                            const shard1Response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${(session as any).googleId}"); 
                             if (shard1Response.status !== 200) throw new Error('Failed to retrieve shard1');
                             const { shard1, walletAddress } = await shard1Response.json();
                             const shard1Array = base64ToUint8Array(shard1);
