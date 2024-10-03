@@ -10,8 +10,6 @@ import Wallet from './utils/models/wallet.model';
 dotenv.config();
 connectDB();
 
-// const programId = new PublicKey(process.env.PROGRAM_ID as string);
-
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY as string 
 
 const feePayerWallet = Keypair.fromSecretKey(Buffer.from(`${process.env.FEE_PAYER_SECRET}`, 'base64'))
@@ -50,12 +48,12 @@ const connection = new Connection('https://api.devnet.solana.com');
 
 app.post(`/create-wallet`, async (req:Request, res:Response) => {
     try {
-        const {shard1, pdaTokenAccount, email} = req.body
+        const {shard1, pdaTokenAccount, email, googleId} = req.body
         const shard = new Uint8Array(Buffer.from(shard1, 'base64'))
         const encrypted_shard1 = encrypt(shard)
-        const existingWallet = await Wallet.findOne({email:email})
+        const existingWallet = await Wallet.findOne({googleId:googleId})
         if (existingWallet) return res.status(404).json({message:"user already has a wallet"})
-        const createdWallet = await Wallet.create({encrypted_shard1,public_key:pdaTokenAccount,email})
+        const createdWallet = await Wallet.create({encrypted_shard1,public_key:pdaTokenAccount,email,googleId})
         if(createdWallet){
             res.status(201).json({
                 walletAddress: pdaTokenAccount
@@ -73,10 +71,10 @@ app.post(`/create-wallet`, async (req:Request, res:Response) => {
     }
 })
 
-app.get('/shard1/:email', async (req, res) => {
+app.get('/shard1/:googleId', async (req, res) => {
     try {
-      const {email} = req.params;
-     const DBwallet = await Wallet.findOne({email:email})
+      const {googleId} = req.params;
+     const DBwallet = await Wallet.findOne({googleId:googleId})
      const encrypted_shard1 = DBwallet?.encrypted_shard1
      const walletAddress = DBwallet?.public_key
      const decryptedShard = decrypt(encrypted_shard1 as any)
@@ -107,10 +105,10 @@ app.get('/shard1/:email', async (req, res) => {
     }
 });
   
-app.get('/wallet/:email', async (req, res) => {
+app.get('/wallet/:googleId', async (req, res) => {
   try {
-    const {email} = req.params
-    const user = await Wallet.findOne({email:email})
+    const {googleId} = req.params
+    const user = await Wallet.findOne({googleId:googleId})
     if(user?.email){
       return res.status(200).json({success:true, wallet:user.public_key})
     } else{

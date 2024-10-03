@@ -12,6 +12,10 @@ const walletSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true
+    },
+    googleId:{
+        type:String,
+        required:true
     }
 })
 
