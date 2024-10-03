@@ -10,7 +10,6 @@ use solana_program::{
     sysvar::{rent::Rent, Sysvar},
 };
 
-// Entry point for the Solana program
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
@@ -37,9 +36,8 @@ pub fn process_transfer_from_pda(
     let wallet_signer = next_account_info(accounts_iter)?;
     let pda_account = next_account_info(accounts_iter)?;
     let destination_account = next_account_info(accounts_iter)?;
-    let system_program = next_account_info(accounts_iter)?; // Adding the System Program account
+    let system_program = next_account_info(accounts_iter)?;
 
-    // Ensure the PDA is derived correctly using the wallet's public key as the seed
     let (expected_pda, bump_seed) = Pubkey::find_program_address(
         &[wallet_signer.key.to_bytes().as_ref()],
         program_id,
@@ -49,29 +47,26 @@ pub fn process_transfer_from_pda(
         return Err(ProgramError::InvalidAccountData);
     }
 
-    // Check if the wallet signer is the one that can authorize this PDA
     if !wallet_signer.is_signer {
         return Err(ProgramError::MissingRequiredSignature);
     }
 
-    // Log the transfer for debugging
     msg!("Transferring {} lamports from PDA to {:?}", amount, destination_account.key);
 
-    // Create the transfer instruction
     let transfer_instruction = system_instruction::transfer(
         pda_account.key,
         destination_account.key,
         amount,
     );
 
-    // Execute the transfer with the wallet signing and PDA involved
+
     invoke_signed(
         &transfer_instruction,
-        &[pda_account.clone(), destination_account.clone(), system_program.clone()], // Add the System Program here
+        &[pda_account.clone(), destination_account.clone(), system_program.clone()], 
         &[&[
             wallet_signer.key.to_bytes().as_ref(),
             &[bump_seed],
-        ]], // Seeds for the PDA
+        ]], 
     )?;
 
     Ok(())
