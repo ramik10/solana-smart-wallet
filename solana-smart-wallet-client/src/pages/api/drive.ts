@@ -57,7 +57,6 @@ export default async function POST(
       })
   
       const fileId = fileResponse.data.id
-      console.log("fileId:",fileId)
       if(fileId){
         return res.status(200).json({message: "successful"})
       } else{

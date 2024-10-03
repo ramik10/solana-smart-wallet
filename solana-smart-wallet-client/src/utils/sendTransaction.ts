@@ -3,10 +3,10 @@ import { Connection, PublicKey, Keypair, Transaction, SystemProgram,sendAndConfi
 const programId = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID as string);
 const connection = new Connection('https://api.devnet.solana.com');
 
-const sendTransaction =async (email:string, destWallet1:string, amount:number)=>{
+const sendTransaction =async (googleId:string, destWallet1:string, amount:number)=>{
     try {
         const responses = await Promise.all([
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${email}`),
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${googleId}`),
             fetch("/api/retrieve")
         ])
     
@@ -17,7 +17,6 @@ const sendTransaction =async (email:string, destWallet1:string, amount:number)=>
             const shard1 = new Uint8Array(Buffer.from(shard, 'base64'))
             const privateKey = Buffer.concat([shard1, shard2]);
             const wallet = Keypair.fromSecretKey(new Uint8Array(privateKey));
-            console.log(walletAddress)
             const pda = new PublicKey(walletAddress as string); 
 
       

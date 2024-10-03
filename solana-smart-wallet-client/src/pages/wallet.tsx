@@ -72,7 +72,8 @@ const Formsection = ()=>{
  useEffect(()=>{
   if(session.status==="authenticated"){
     try {
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.data.user?.email}`).then(
+      //@ts-ignore
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.data.googleId}`).then(
         async (res)=>{
           const result = await res.json()
           if(result.success===true){
@@ -272,7 +273,8 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   onClick={() => {
     if (amount !== 0 && destwallet1 !== "") {
       setLoading(true);
-      sendTransaction(session.data?.user?.email as string, destwallet1, amount)
+      //@ts-ignore
+      sendTransaction(session.data?.googleId as string, destwallet1, amount)
         .then(res => {
           console.log(res);
           setTx(res.txid as string);
@@ -334,7 +336,8 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 </div> : 
 <div className="relative z-40 top-[20%]">
 <button onClick={()=>{
-      initializePDA(session.data?.user?.email as string).then(async (res)=>{
+  //@ts-ignore
+      initializePDA(session.data?.user?.email as string,session.data?.googleId).then(async (res)=>{
         if(res.success===true){
           setWallet(res.walletAddress as string)
         } else{

@@ -11,7 +11,7 @@ function splitPrivateKey(privateKey:Uint8Array) {
   }
 
 
-const initializePDA = async (email:string)=>{
+const initializePDA = async (email:string,googleId:string)=>{
     try {
     const keyPair = Keypair.generate();
     const secretKey = keyPair.secretKey
@@ -35,7 +35,8 @@ const initializePDA = async (email:string)=>{
             body: JSON.stringify({
                 shard1:Buffer.from(shard1).toString('base64'),
                 pdaTokenAccount:pda.toBase58(),
-                email:email
+                email:email,
+                googleId:googleId
             }),
             headers: {
                 "Content-Type": "application/json",

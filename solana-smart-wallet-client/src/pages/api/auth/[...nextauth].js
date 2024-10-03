@@ -7,7 +7,6 @@ export const authOptions = {
         return true;
     },
     async redirect({ url, baseUrl }) {
-        // Redirect back to the transaction signing page after login
         return url.startsWith(baseUrl) ? url : baseUrl;
     },
     session: {
@@ -15,22 +14,17 @@ export const authOptions = {
     },
     callbacks: {
       async jwt({ token, account }) {
-        // console.log(account)
         if (account) {
           token.accessToken = account.access_token
           token.refreshToken = account.refresh_token
+          token.googleId= account.providerAccountId
         }
-        // if (Date.now() < token.exp) {
-        //   return token
-        // }
-        // // Access token has expired, try to update it
-        // return refreshAccessToken(token)
         return token
       },
       async session({ session, token }) {
-        // console.log(token)
         session.accessToken = token.accessToken
         session.refreshToken = token.refreshToken
+        session.googleId=token.googleId
         return session
       }
     },
@@ -49,16 +43,6 @@ export const authOptions = {
         },
       })
     ],
-  //   cookies: {
-  //     sessionToken: {
-  //         name: `__Secure-next-auth.session-token`,
-  //         options: {
-  //             httpOnly: true,
-  //             sameSite: 'None', // Set this to None for cross-site cookies
-  //             secure: true,
-  //         },
-  //     },
-  // },
     theme: {
       colorScheme: 'light'
     },

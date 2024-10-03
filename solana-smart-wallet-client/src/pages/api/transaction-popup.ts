@@ -4,21 +4,19 @@ import { getServerSession } from 'next-auth';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const {destWallet, amount,serializedTransaction } = req.query;
+    const {serializedTransaction } = req.query;
     //@ts-ignore
     const session = await getServerSession(req, res, authOptions)
     const protocol = req.headers['x-forwarded-proto'] || 'http';
-        // Construct the callback URL
-        const callbackUrl = `${protocol}://${req.headers.host}${req.url}`;
+    const callbackUrl = `${protocol}://${req.headers.host}${req.url}`;
     if (!session) {
         
         const signInUrl = `/api/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
-        // Redirect to the Google login page with the callback URL
         return res.redirect(signInUrl);
     }
-
-    const resp = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.user?.email}`)).json()
+    //@ts-ignore
+    const resp = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.googleId}`)).json()
     
     if(resp.success===true){
         const connection = new Connection('https://api.devnet.solana.com');
@@ -174,20 +172,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                              const signBtn = document.getElementById('sign-btn');
                             const loader = document.getElementById('sign-btn-loader');
 
-                            // Disable the button and show the loader
                             signBtn.disabled = true;
                             loader.style.display = 'inline-block';
                         try {
-                            // Fetch shard2 in the client-side pop-up, where the session is available
                             const shard2Response = await fetch('/api/retrieve');
     
                             if (shard2Response.status !== 200) throw new Error('Failed to retrieve shard2');
                             const { retrievedPasskey } = await shard2Response.json();
 
                             const shard2 = base64ToUint8Array(retrievedPasskey);
-    
-                            // Fetch shard1 from your backend
-                            const shard1Response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${session.user?.email}");
+
+                            const shard1Response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/shard1/${session.googleId}"); 
                             if (shard1Response.status !== 200) throw new Error('Failed to retrieve shard1');
                             const { shard1, walletAddress } = await shard1Response.json();
                             const shard1Array = base64ToUint8Array(shard1);
@@ -196,7 +191,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             const wallet = solanaWeb3.Keypair.fromSecretKey(new Uint8Array(privateKey));
                             const pda = new solanaWeb3.PublicKey(walletAddress);
 
-                            // Create the transaction
                             
                             const tra =  new solanaWeb3.Transaction().add({
                             keys: [
@@ -214,7 +208,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             tra.partialSign(wallet);
 
     
-                            // Send the transaction to the backend for final signing
                             const transactionBase64 = tra.serialize({ requireAllSignatures: false }).toString('base64');
                             const response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URI}/sign-and-send", {
                                 method: 'POST',
@@ -241,8 +234,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     document.getElementById('logout-btn').addEventListener('click', () => {
         const callbackUrl = window.location.origin; // Redirect after logout
         const signoutUrl = '/api/auth/signout?callbackUrl=${encodeURIComponent(callbackUrl)}';
-        
-        // Redirect to the signout URL to properly log out
+
         window.location.href = signoutUrl;
     })
                 </script>
