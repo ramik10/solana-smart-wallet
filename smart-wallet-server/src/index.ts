@@ -44,7 +44,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-const connection = new Connection('https://api.devnet.solana.com');
+const connection = new Connection('https://rpc.testnet.soo.network/rpc');
 
 app.post(`/create-wallet`, async (req:Request, res:Response) => {
     try {
