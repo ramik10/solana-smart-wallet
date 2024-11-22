@@ -12,7 +12,7 @@ const Header = () => {
   return (
     <header className="absolute flex justify-between items-center w-[90%] z-40  ml-[1%]">
       <div className="text-white text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold text-center md:text-right xl:ml-[4%] xl:mt-10">
-        SolBoard
+        SoonBoard
       </div>
       <nav className=" space-x-4 md:space-x-8 text-white justify-end hidden lg:block text-2xl">
         <a href="https://ramiks-organization.gitbook.io/solboard" className="hover:underline">Docs</a>
@@ -65,7 +65,7 @@ const Formsection = ()=>{
  const [balance, setBalance] = useState("")
  const [loading, setLoading] = useState<boolean>(false);
 
- const connection = new Connection('https://api.devnet.solana.com');
+ const connection = new Connection('https://rpc.testnet.soo.network/rpc');
 
   
 
@@ -139,7 +139,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     
     <div className="relative flex items-center ml-8 z-40">
       <Image
-        src="/Solana SOL.png"
+        src="/soon.png"
         width={24}
         height={24}
         objectFit="contain"
@@ -147,7 +147,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         className="relative z-40"
       />
       <select className="bg-transparent text-white py-2 px-4 rounded-md w-auto relative z-40">
-        <option className="flex">Solana Devnet</option>
+        <option className="flex">Soon Testnet</option>
       </select>
     </div>
 
@@ -298,7 +298,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   )}
 </button>
 </div>
-<div className="relative max-w-[187px] h-full w-[45%]">
+{tx && <div className="relative max-w-[187px] h-full w-[45%]">
 <Image
   src="/Vector (4).png"
   alt="vector"
@@ -306,13 +306,15 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   className="object-fill h-fit z-20"
 />
 <button
-  onClick={requestAirdrop}
+  onClick={() => {navigator.clipboard.writeText(tx)
+    toast.success("Tx id copied")
+  }}
   className="absolute inset-0 z-50 text-white flex items-center justify-center"
 >
-  Airdrop
+Copy Tx id
 </button>
-</div>
-{tx && <div className="relative hidden md:block">
+</div>}
+{/* {tx && <div className="relative hidden md:block">
 <button
       onClick={() => {navigator.clipboard.writeText(tx)
         toast.success("Tx id copied")
@@ -322,7 +324,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     >
       Copy Tx id
     </button>
-</div>}
+</div>} */}
 </div>
 
 

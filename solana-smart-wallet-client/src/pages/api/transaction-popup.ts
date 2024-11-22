@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const resp = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/wallet/${session.googleId}`)).json()
     
     if(resp.success===true){
-        const connection = new Connection('https://api.devnet.solana.com');
+        const connection = new Connection('https://rpc.testnet.soo.network/rpc');
         const balance = await connection.getBalance(new PublicKey(resp.wallet))
         const solBalance = parseFloat((balance*0.000000001).toFixed(7)).toString()
         return res.status(200).send(`
@@ -158,7 +158,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                     return bytes;
                 }
-                    const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                    const connection = new solanaWeb3.Connection('https://rpc.testnet.soo.network/rpc');
 
                     const array = base64ToUint8Array("${serializedTransaction}")
                     const transaction = solanaWeb3.Transaction.from(array)

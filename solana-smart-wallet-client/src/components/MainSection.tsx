@@ -8,10 +8,10 @@ const MainSection = () => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center p-6 -mt-4 sm:-mt-8 lg:-mt-20 xl:-mt-60">
         <div className="text-white max-w-xl text-center md:text-left">
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6">
-            Dive into the world of Solana with SolBoard
+            Dive into the world of Soon with SoonBoard
           </h1>
           <p className="text-base sm:text-lg mb-4 sm:mb-6">
-            SolBoard is an interoperable Solana smart wallet that lets you interact with dapps in the Solana ecosystem using a simple Google login, removing the hassle of remembering or protecting your recovery phrase.
+            SoonBoard is an interoperable Soon smart wallet that lets you interact with dapps in the Soon ecosystem using a simple Google login, removing the hassle of remembering or protecting your recovery phrase.
           </p>
           <button onClick={()=>router.push("/wallet")} className="bg-green-600 text-white py-2 sm:py-3 px-6 sm:px-8 rounded">
             Get Started

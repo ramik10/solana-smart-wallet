@@ -1,7 +1,7 @@
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram,sendAndConfirmTransaction, TransactionInstruction, } from '@solana/web3.js'
 
 const programId = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID as string);
-const connection = new Connection('https://api.devnet.solana.com');
+const connection = new Connection('https://rpc.testnet.soo.network/rpc');
 
 const sendTransaction =async (googleId:string, destWallet1:string, amount:number)=>{
     try {

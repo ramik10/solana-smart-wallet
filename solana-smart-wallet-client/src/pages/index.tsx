@@ -14,8 +14,8 @@ const Home = () => {
   return (
     <div>
       <Head>
-        <title>SolBoard</title>
-        <meta name="description" content="SolBoard - Dive into the world of Solana with SolBoard" />
+        <title>SoonBoard</title>
+        <meta name="description" content="SoonBoard - Dive into the world of Soon with SoonBoard" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
