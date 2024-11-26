@@ -19,6 +19,9 @@ const Header = () => {
         <a href="https://discord.gg/DrZqJvFzHS" className="hover:underline">Discord</a>
         <a href="https://x.com/SoonBoardWallet" className="hover:underline">Twitter</a>
       </nav>
+      <nav className="text-white justify-start text-xl md:text-2xl">
+      <a href="https://bridge.testnet.soo.network/home" className="hover:underline">Bridge</a>
+      </nav>
     { session.status==="authenticated" ? <button onClick={()=>signOut()} className="border border-purple-500 text-white py-2 px-4 md:px-6  rounded hover:bg-purple-500 hover:text-white transition">Sign Out</button>
       : <button onClick={() => signIn('google')} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Sign In</button>}
     </header>
@@ -90,15 +93,18 @@ const Formsection = ()=>{
   }
  },[session.status,loading,tx])
 
- const requestAirdrop = async()=>{
+ const requestAirdrop = async(googleId:string)=>{
   try {
-    const txhash = await connection.requestAirdrop(new PublicKey(wallet), 1e9);
-    const confirmed = await connection.confirmTransaction(txhash)
-    setTx(txhash)
-    toast.success("Got 1 Sol in devnet")
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/airdrop/${googleId}`)
+    const result = await resp.json()
+    if(resp.status===200){
+      setTx(result.txhash)
+      toast.success(result.message)
+    } else{
+      toast.error(result.message)
+    }
+    
   } catch (error:any) {
-    console.log(wallet)
-    console.log(error)
     toast.error(error.message)
   }
  }
@@ -137,11 +143,11 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     <div className="relative flex items-center z-20 justify-between">
     <div className="text-white z-30">via</div>
     
-    <div className="relative flex items-center ml-8 z-40">
+    <div className="relative flex items-center ml-2 z-40">
       <Image
         src="/soon.png"
-        width={24}
-        height={24}
+        width={64}
+        height={64}
         objectFit="contain"
         alt="sol"
         className="relative z-40"
@@ -298,7 +304,7 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   )}
 </button>
 </div>
-{tx && <div className="relative max-w-[187px] h-full w-[45%]">
+<div className="relative max-w-[187px] h-full w-[45%]">
 <Image
   src="/Vector (4).png"
   alt="vector"
@@ -306,15 +312,16 @@ const handleWalletChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   className="object-fill h-fit z-20"
 />
 <button
-  onClick={() => {navigator.clipboard.writeText(tx)
-    toast.success("Tx id copied")
-  }}
+  onClick={() => 
+    //@ts-ignore
+    requestAirdrop(session.data.googleId)
+  }
   className="absolute inset-0 z-50 text-white flex items-center justify-center"
 >
-Copy Tx id
+Airdrop
 </button>
-</div>}
-{/* {tx && <div className="relative hidden md:block">
+</div>
+{tx && <div className="relative hidden md:block">
 <button
       onClick={() => {navigator.clipboard.writeText(tx)
         toast.success("Tx id copied")
@@ -324,7 +331,7 @@ Copy Tx id
     >
       Copy Tx id
     </button>
-</div>} */}
+</div>}
 </div>
 
 
