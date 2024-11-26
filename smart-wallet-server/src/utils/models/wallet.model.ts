@@ -16,6 +16,10 @@ const walletSchema = new mongoose.Schema({
     googleId:{
         type:String,
         required:true
+    },
+    airdropped:{
+        type: Boolean,
+        default:false
     }
 })
 

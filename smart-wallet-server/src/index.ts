@@ -119,6 +119,40 @@ app.get('/wallet/:googleId', async (req, res) => {
   }
 })
 
+app.get('/airdrop/:googleId', async (req, res) => {
+  try {
+    const {googleId} = req.params
+    const user = await Wallet.findOne({googleId:googleId})
+    if(user?.email){
+      if(user.airdropped===false){
+      const tx = SystemProgram.transfer({
+        fromPubkey: feePayerWallet.publicKey,
+        toPubkey: new PublicKey(user.public_key),
+        lamports: 100000
+      })
+      const transaction = new Transaction().add(tx)
+      const txid = await connection.sendTransaction(transaction,[feePayerWallet]);
+
+      const confirmed = await connection.confirmTransaction(txid);
+      if(txid && confirmed){
+        user.airdropped=true
+        await user.save()
+        return res.status(200).json({success:true, message: "Airdropped 0.0001 SOL successfully", txhash:txid})
+      }
+      else{
+        return res.status(500).json({success:false, message:"something went wrong"})
+      }
+    } else{
+      return res.status(500).json({success:false, message:"you have already been airdropped, limit is currently one"})
+    }
+    } else{
+      return res.status(404).json({success:false, message:"user not found"})
+    }
+  } catch (error) {
+    return res.status(500).json(error)
+  }
+})
+
 
   app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at PORT : ${port}`);
