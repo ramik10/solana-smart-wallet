@@ -20,7 +20,7 @@ const Header = () => {
         <a href="https://x.com/SoonBoardWallet" className="hover:underline">Twitter</a>
       </nav>
       <nav className="text-white justify-start text-xl md:text-2xl">
-      <a href="https://bridge.testnet.soo.network/home" className="hover:underline">Bridge</a>
+      <a href="https://bridge.testnet.soo.network" className="hover:underline">Bridge</a>
       </nav>
     { session.status==="authenticated" ? <button onClick={()=>signOut()} className="border border-purple-500 text-white py-2 px-4 md:px-6  rounded hover:bg-purple-500 hover:text-white transition">Sign Out</button>
       : <button onClick={() => signIn('google')} className="border border-purple-500 text-white py-2 px-4 md:px-6 ml-4 md:ml-8 rounded hover:bg-purple-500 hover:text-white transition">Sign In</button>}
